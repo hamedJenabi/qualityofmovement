@@ -122,16 +122,6 @@ export default function RegistrationForm({ form, tickets, isClicked }) {
               <p>2 Parties</p>
               <p>€110</p>
             </div>
-            <div
-              onClick={() => handleTicket(2)}
-              className={classNames(styles.card, {
-                [styles.selected]: form.values.ticket === "partyPass",
-              })}
-            >
-              <h3>Party Pass</h3>
-              <p>2 Parties</p>
-              <p>€35</p>
-            </div>
           </div>
           {form.values.ticket === "fullpass" && (
             <>

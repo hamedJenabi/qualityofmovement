@@ -28,11 +28,6 @@ export default function Home({ tickets }) {
       country: "",
       ticket: "",
       level: "",
-      role: "",
-      theme_class: "no",
-      competition: "",
-      competition_role: "",
-      competitions: "",
       terms: false,
     },
     onValidate: (values) => {

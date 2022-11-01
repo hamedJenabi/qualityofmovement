@@ -71,17 +71,20 @@
 .title {
   margin: $lg 0 !important;
 }
+.payment {
+  gap: 5px;
+  display: flex;
+  flex-direction: column;
+}
 .button {
   margin-top: $md;
   @include button;
-  width: 100% !important;
   height: 80px !important;
   display: flex;
   justify-content: center;
   align-items: center;
   @media (min-width: 600px) {
     padding: $xs;
-    width: 380px !important;
     height: 50px !important;
   }
 }
@@ -123,7 +126,7 @@
   border: 1px solid #eaeaea;
   border-radius: 10px;
   transition: color 0.15s ease, border-color 0.15s ease;
-  max-width: 300px;
+  min-width: 400px;
 }
 
 .card:hover,
