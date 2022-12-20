@@ -11,8 +11,35 @@ const RegistrationForm = dynamic(
   { ssr: false }
 );
 import { unstable_useFormState as useFormState } from "reakit/Form";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
-export default function Home({ tickets }) {
+const Paypal = ({ value, clientID }) => {
+  return (
+    <PayPalScriptProvider options={{ "client-id": clientID }}>
+      <PayPalButtons
+        createOrder={(data, actions) => {
+          return actions.order.create({
+            purchase_units: [
+              {
+                amount: {
+                  value: value,
+                },
+              },
+            ],
+          });
+        }}
+        onApprove={(data, actions) => {
+          return actions.order.capture().then((details) => {
+            const name = details.payer.name.given_name;
+            alert(`Transaction completed by ${name}`);
+          });
+        }}
+      />
+    </PayPalScriptProvider>
+  );
+};
+
+export default function Home({ tickets, clientID }) {
   const isMobile = useMedia({ maxWidth: "768px" });
   const [isClicked, setIsClicked] = useState(false);
 
@@ -26,7 +53,7 @@ export default function Home({ tickets }) {
       lastname: "",
       email: "",
       country: "",
-      ticket: "",
+      ticket: "fullpass",
       level: "",
       terms: false,
     },
@@ -114,6 +141,7 @@ export default function Home({ tickets }) {
       />
       <main className={styles.main}>
         <RegistrationForm form={form} tickets={tickets} isClicked={isClicked} />
+        {/* <Paypal value={10} clientID={clientID} /> */}
       </main>
 
       <footer className={styles.footer}>
@@ -133,10 +161,12 @@ export default function Home({ tickets }) {
 export async function getServerSideProps() {
   const { getTickets } = await import("../db/db");
   const tickets = await getTickets();
+  const clientID = process.env.PAYPAL_CLIENT_ID;
 
   return {
     props: {
       tickets: tickets,
+      clientID: clientID,
     },
   };
 }

@@ -1,4 +1,9 @@
-import { titleCase, discounts, levelsToShow } from "../../utils/functions";
+import {
+  titleCase,
+  discounts,
+  levelsToShow,
+  statusList,
+} from "../../utils/functions";
 import {
   updateUserInfo,
   removeFromWaitingList,
@@ -37,12 +42,12 @@ const getTicketLabel = (ticket) => {
   if (ticket === "partyPass") {
     return "Party Pass";
   }
-  if (ticket === "fullpass") {
-    return "Full Pass";
+  if (ticket === "social_pass") {
+    return "Social Pass";
   }
 };
 export default async function edituser(req, response) {
-  const statusList = [
+  const statusListValues = [
     "registered",
     "reminder",
     "email-sent",
@@ -64,40 +69,16 @@ export default async function edituser(req, response) {
     country: req.body.country,
     role: req.body.role ?? "",
     ticket: req.body.ticket ?? "",
-    level: req.body.level,
-    theme_class: req.body.theme_class,
-    competition: req.body.competition,
-    competition_role: req.body.competition_role,
-    competitions: req.body.competitions,
+    shirt: req.body.shirt ?? "",
+    brunch: req.body.brunch ?? "",
+    additional: req.body.additional ?? "",
+    shirt_size: req.body.shirt_size ?? "",
+    price: req.body.price,
     terms: req.body.terms,
   };
-  const isGroupDiscount = discounts.some(
-    ({ email }) => email === req.body.email
-  );
-  const getPrice = (requestData, isGroupDiscount) => {
-    const initialPrice = requestData.ticket === "partyPass" ? 95 : 195;
-    const competitions =
-      requestData.competition === "yes"
-        ? requestData.competitions.split(",")?.length * 10
-        : 0;
-    const theme_class =
-      requestData.theme_class === "no" || requestData.theme_class === ""
-        ? 0
-        : 40;
-    const fullPassdiscount =
-      requestData.ticket === "fullpass" &&
-      requestData.competition === "yes" &&
-      requestData.competitions?.length > 0
-        ? -10
-        : 0;
-    const totalPrice =
-      initialPrice + competitions + theme_class + fullPassdiscount;
-    const output = isGroupDiscount
-      ? Math.round((totalPrice / 100) * 90)
-      : totalPrice;
-    return output;
-  };
-  const totalPrice = getPrice(requestData, isGroupDiscount);
+
+  console.log("requestData", requestData);
+  const totalPrice = requestData.price;
   /***** GET PRICE AND LEVEL */
   const level = titleCase(requestData.level);
   const ticket = getTicketLabel(requestData.ticket);
@@ -113,7 +94,7 @@ export default async function edituser(req, response) {
       });
   };
   let template = "";
-  if (!statusList.includes(req.body.status)) {
+  if (!statusListValues.includes(req.body.status)) {
     response.status(401).json();
   } else {
     if (req.body.status === "email-sent") {
@@ -126,9 +107,9 @@ export default async function edituser(req, response) {
       //   await removeFromWaitingList(ticketId);
       //   await addToCapacity(ticketId);
       // }
-      template = "d-eec50fc0f8824f0aa2c66a7196890ed5";
+      template = "d-052f0896595a46a2910c4f07f4ecd856";
       const msg = {
-        from: "registration@bluesfever.eu",
+        from: "hamed.jenabi@gmail.com",
         to: `${requestData.email}`,
         template_id: template,
         dynamic_template_data: {
@@ -136,30 +117,22 @@ export default async function edituser(req, response) {
           lastname: `${requestData.lastname}`,
           country: `${requestData.country}`,
           role: `${titleCase(requestData.role)}`,
-          level: `${getLevelLabelForEmail(requestData.level)}`,
+          additional: `${requestData.additional}`,
+          brunch: `${requestData.brunch}`,
+          shirt: `${requestData.shirt}`,
+          shirtSize: `${requestData.shirt_size}`,
           ticket: `${ticket}`,
-          themeClass: `${titleCase(requestData.theme_class)}`,
-          competition: requestData.competition === "yes" ? true : false,
-          competitionAnswer:
-            requestData.competition === "later" ? "I will decide later" : "No",
-          competition_role: `${requestData.competition_role}`,
-          competitions: requestData.competitions
-            ? `${requestData.competitions
-                .split(",")
-                .map((competition) => titleCase(competition))}`
-            : "",
           terms: `${requestData.terms}`,
           status: `${requestData.status}`,
-          isGroupDiscount: isGroupDiscount,
           price: `${totalPrice}`,
         },
       };
       await sendEmail(msg);
     }
     if (req.body.status === "reminder") {
-      template = "d-ffa39fe3a7e440ed94d71fac0170f3af";
+      template = "d-e066956322ae4e05951205eb556ba500";
       const msg = {
-        from: "registration@bluesfever.eu",
+        from: "hamed.jenabi@gmail.com",
         to: `${requestData.email}`,
         template_id: template,
         dynamic_template_data: {
@@ -168,21 +141,13 @@ export default async function edituser(req, response) {
           date: `${requestData.date}`,
           country: `${requestData.country}`,
           role: `${titleCase(requestData.role)}`,
-          level: `${getLevelLabelForEmail(requestData.level)}`,
           ticket: `${ticket}`,
-          themeClass: `- ${titleCase(requestData.theme_class)}`,
-          competition: requestData.competition === "yes" ? true : false,
-          competitionAnswer:
-            requestData.competition === "later" ? "I will decide later" : "No",
-          competition_role: `${requestData.competition_role}`,
-          competitions: requestData.competitions
-            ? `${requestData.competitions
-                .split(",")
-                .map((competition) => titleCase(competition))}`
-            : "",
+          additional: `${requestData.additional}`,
+          brunch: `${requestData.brunch}`,
+          shirt: `${requestData.shirt}`,
+          shirtSize: `${requestData.shirt_size}`,
           terms: `${requestData.terms}`,
           status: `${requestData.status}`,
-          isGroupDiscount: isGroupDiscount,
           price: `${totalPrice}`,
         },
       };
@@ -190,29 +155,21 @@ export default async function edituser(req, response) {
     }
     if (req.body.status === "waitinglist") {
       const msg = {
-        from: "registration@bluesfever.eu",
+        from: "hamed.jenabi@gmail.com",
         to: `${requestData.email}`,
-        template_id: "d-47f29cd18c134b89bf5496573737abdc",
+        template_id: "d-75944ebe0ce746299129ec916c7704e0",
         dynamic_template_data: {
           firstname: `${requestData.firstname}`,
           lastname: `${requestData.lastname}`,
           country: `${requestData.country}`,
           role: `${titleCase(requestData.role)}`,
-          level: `${getLevelLabelForEmail(requestData.level)}`,
           ticket: `${ticket}`,
-          themeClass: `${titleCase(requestData.theme_class)}`,
-          competition: requestData.competition === "yes" ? true : false,
-          competitionAnswer:
-            requestData.competition === "later" ? "I will decide later" : "No",
-          competition_role: `${requestData.competition_role}`,
-          competitions: requestData.competitions
-            ? `${requestData.competitions
-                .split(",")
-                .map((competition) => titleCase(competition))}`
-            : "",
+          additional: `${requestData.additional}`,
+          brunch: `${requestData.brunch}`,
+          shirt: `${requestData.shirt}`,
+          shirtSize: `${requestData.shirt_size}`,
           terms: `${requestData.terms}`,
           status: `${requestData.status}`,
-          isGroupDiscount: isGroupDiscount,
           price: `${totalPrice}`,
         },
       };
@@ -220,29 +177,21 @@ export default async function edituser(req, response) {
     }
     if (req.body.status === "confirmed") {
       const msg = {
-        from: "registration@bluesfever.eu",
+        from: "hamed.jenabi@gmail.com",
         to: `${requestData.email}`,
-        template_id: "d-9a1d3b06c6fb43f69a1ee68b940ebe35",
+        template_id: "d-90540c940e424574af63fcba1bf9e7b2",
         dynamic_template_data: {
           firstname: `${requestData.firstname}`,
           lastname: `${requestData.lastname}`,
           country: `${requestData.country}`,
           role: `${titleCase(requestData.role)}`,
-          level: `${getLevelLabelForEmail(requestData.level)}`,
           ticket: `${ticket}`,
-          themeClass: `${titleCase(requestData.theme_class)}`,
-          competition: requestData.competition === "yes" ? true : false,
-          competitionAnswer:
-            requestData.competition === "later" ? "I will decide later" : "No",
-          competition_role: `${requestData.competition_role}`,
-          competitions: requestData.competitions
-            ? `${requestData.competitions
-                .split(",")
-                .map((competition) => titleCase(competition))}`
-            : "",
+          additional: `${requestData.additional}`,
+          brunch: `${requestData.brunch}`,
+          shirt: `${requestData.shirt}`,
+          shirtSize: `${requestData.shirt_size}`,
           terms: `${requestData.terms}`,
           status: `${requestData.status}`,
-          isGroupDiscount: isGroupDiscount,
           price: `${totalPrice}`,
         },
       };
@@ -251,29 +200,21 @@ export default async function edituser(req, response) {
     // and more conditions
     if (req.body.status === "out") {
       const msg = {
-        from: "registration@bluesfever.eu",
+        from: "thegrindhelsinki@gmail.com",
         to: `${requestData.email}`,
-        template_id: "d-792c656cb1a14df6987d0b6867f5295b",
+        template_id: "d-5485670ec4ff45e98553fdb8f82fb178",
         dynamic_template_data: {
           firstname: `${requestData.firstname}`,
           lastname: `${requestData.lastname}`,
           country: `${requestData.country}`,
           role: `${titleCase(requestData.role)}`,
-          level: `${getLevelLabelForEmail(requestData.level)}`,
           ticket: `${ticket}`,
-          themeClass: `${titleCase(requestData.theme_class)}`,
-          competition: requestData.competition === "yes" ? true : false,
-          competitionAnswer:
-            requestData.competition === "later" ? "I will decide later" : "No",
-          competition_role: `${requestData.competition_role}`,
-          competitions: requestData.competitions
-            ? `${requestData.competitions
-                .split(",")
-                .map((competition) => titleCase(competition))}`
-            : "",
+          additional: `${requestData.additional}`,
+          brunch: `${requestData.brunch}`,
+          shirt: `${requestData.shirt}`,
+          shirtSize: `${requestData.shirt_size}`,
           terms: `${requestData.terms}`,
           status: `${requestData.status}`,
-          isGroupDiscount: isGroupDiscount,
           price: `${totalPrice}`,
         },
       };
@@ -295,3 +236,165 @@ export default async function edituser(req, response) {
     response.status(200).json();
   }
 }
+
+// import {
+//   updateUserInfo,
+//   getTicketByName,
+//   removeFromCapacity,
+//   removeFromWaitingList,
+// } from "../../db/db";
+
+// const sgMail = require("@sendgrid/mail");
+// sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// //******** Level & Ticket Label *********/
+// const getLevelLabel = (level) => {
+//   if (level === "levelOne") {
+//     return "Level 1";
+//   }
+//   if (level === "levelTwo") {
+//     return "Level 2";
+//   }
+//   if (level === "levelThree") {
+//     return "Level 3";
+//   }
+//   if (level === "") {
+//     return "";
+//   }
+// };
+// const getTicketLabel = (ticket) => {
+//   if (ticket === "partyPass") {
+//     return "Party Pass";
+//   }
+//   if (ticket === "fullpass") {
+//     return "Full Pass";
+//   }
+// };
+// export default async function edituser(req, response) {
+//   const statusList = [
+//     "registered",
+//     "accepted",
+//     "confirmed",
+//     "reminder",
+//     "waitinglist",
+//     "canceled",
+//   ];
+//   const requestData = {
+//     status: req.body.status,
+//     prevStatus: req.body.prevStatus,
+//     email: req.body.email,
+//     firstname: req.body.firstname,
+//     lastname: req.body.lastname,
+//     country: req.body.country,
+//     role: req.body.role ?? "",
+//     ticket: req.body.ticket ?? "",
+//     level: req.body.level,
+//     brunch: req.body.brunch,
+//     shirt: req.body.shirt,
+//     shirtSize: req.body.shirt_size,
+//     terms: true,
+//   };
+//   /***** GET PRICE AND LEVEL */
+//   const level = getLevelLabel(requestData.level);
+//   const ticket = getTicketLabel(requestData.ticket);
+//   const price = requestData.ticket === "partyPass" ? 85 : 185;
+//   const additionalBrunch = requestData.brunch === "yes" ? 20 : 0;
+//   const additionalShirt = requestData.shirt === "yes" ? 20 : 0;
+//   const totalPrice = price + additionalBrunch + additionalShirt;
+
+//   //******** Send Email *********/
+//   const sendEmail = async (msg) => {
+//     sgMail
+//       .send(msg)
+//       .then(() => {
+//         console.log("Email sent");
+//       })
+//       .catch((error) => {
+//         console.error(error);
+//       });
+//   };
+
+//   if (!statusList.includes(req.body.status)) {
+//     response.status(401).json();
+//   } else {
+//     if (req.body.status === "registered") {
+//       const msg = {
+//         from: "hamed.jenabi@gmail.com",
+//         to: `${requestData.email}`,
+//         template_id: "d-b390012c575a4f2796429087994ab214",
+//         dynamic_template_data: {
+//           firstname: `${requestData.firstname}`,
+//           lastname: `${requestData.lastname}`,
+//           country: `${requestData.country}`,
+//           role: `${requestData.role}`,
+//           level: `${level}`,
+//           ticket: `${ticket}`,
+//           brunch: `${requestData.brunch}`,
+//           shirt: `${requestData.shirt}`,
+//           shirtSize: `${requestData.shirtSize}`,
+//           terms: `${requestData.terms}`,
+//           status: `${requestData.status}`,
+//           price: `${totalPrice}`,
+//         },
+//       };
+//       await sendEmail(msg);
+//     }
+//     if (req.body.status === "confirmed") {
+//       const msg = {
+//         from: "hamed.jenabi@gmail.com",
+//         to: `${requestData.email}`,
+//         template_id: "d-fdd76b834f0744518ba6abaa97086e98",
+//         dynamic_template_data: {
+//           firstname: `${requestData.firstname}`,
+//           lastname: `${requestData.lastname}`,
+//           country: `${requestData.country}`,
+//           role: `${requestData.role}`,
+//           level: `${level}`,
+//           ticket: `${ticket}`,
+//           brunch: `${requestData.brunch}`,
+//           shirt: `${requestData.shirt}`,
+//           shirtSize: `${requestData.shirtSize}`,
+//           terms: `${requestData.terms}`,
+//           status: `${requestData.status}`,
+//           price: `${totalPrice}`,
+//         },
+//       };
+//       await sendEmail(msg);
+//     }
+//     if (req.body.status === "reminder") {
+//       const msg = {
+//         from: "hamed.jenabi@gmail.com",
+//         to: `${requestData.email}`,
+//         template_id: "d-9b359ea68ad24de48435368c501b7b4d",
+//         dynamic_template_data: {
+//           firstname: `${requestData.firstname}`,
+//           lastname: `${requestData.lastname}`,
+//           country: `${requestData.country}`,
+//           role: `${requestData.role}`,
+//           level: `${level}`,
+//           ticket: `${ticket}`,
+//           brunch: `${requestData.brunch}`,
+//           shirt: `${requestData.shirt}`,
+//           shirtSize: `${requestData.shirtSize}`,
+//           terms: `${requestData.terms}`,
+//           status: `${requestData.status}`,
+//           price: `${totalPrice}`,
+//         },
+//       };
+//       await sendEmail(msg);
+//     }
+//     if (req.body.status === "canceled") {
+//       const ticketName =
+//         requestData.ticket === "partyPass"
+//           ? requestData.ticket
+//           : `${requestData.level}_${requestData.role}`;
+//       const { id: ticketId } = await getTicketByName(ticketName);
+//       if (requestData.prevStatus === "waitinglist") {
+//         await removeFromWaitingList(ticketId);
+//       } else {
+//         await removeFromCapacity(ticketId);
+//       }
+//     }
+//     await updateUserInfo(req.body);
+//     response.status(200).json();
+//   }
+// }

@@ -118,7 +118,7 @@ export default function RegistrationForm({ form, tickets, isClicked }) {
               })}
             >
               <h3>Full pass</h3>
-              <p>4 hours classes</p>
+              <p>5 hours classe</p>
               <p>2 Parties</p>
               <p>€110</p>
             </div>

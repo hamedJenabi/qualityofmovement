@@ -1,10 +1,10 @@
 import Head from "next/head";
 import Link from "next/link";
+import { titleCase } from "../../utils/functions";
 import useMedia from "use-media";
 import Router from "next/router";
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
-import { titleCase } from "../../utils/functions";
 // import { PaymentElement } from "@stripe/react-stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
@@ -42,8 +42,11 @@ export default function Home({ tickets }) {
           <div className={styles.title}>
             <h3>Thank you for your registration!</h3>
             <p>
-              You will get a confirmation of your sign up by email. Then give us
-              a little time to process your registration. Thank you.
+              Please note that your registration confirmation e-mail may end up
+              in your <b>junk mail or promotions folder</b> so make sure to
+              check those over the next few days. You will get a confirmation of
+              your sign up by email. Then give us a little time to process your
+              registration. Thank you.
             </p>
           </div>
           {user &&
@@ -56,20 +59,11 @@ export default function Home({ tickets }) {
               }
               return (
                 <div className={styles.row} key={i}>
-                  <p>{key}:</p> <p>{key === "terms" ? "yes" : val}</p>
+                  <p>{key}:</p>{" "}
+                  <p>{key === "terms" ? "yes" : titleCase(val)}</p>
                 </div>
               );
             })}
-          <div
-            onClick={() => localStorage.removeItem("accepted")}
-            className={styles.button}
-          >
-            <form>
-              <PaymentElement />
-              <button>Submit</button>
-            </form>
-            <Link href="/">Wanna do another Registration?</Link>
-          </div>
         </div>
       </main>
 

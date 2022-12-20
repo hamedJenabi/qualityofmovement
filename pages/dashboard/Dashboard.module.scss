@@ -49,7 +49,7 @@
   width: 100%;
   border-radius: 4px;
   @media (min-width: 600px) {
-    width: 20%;
+    width: 28%;
   }
 }
 .sideBar {
@@ -65,12 +65,12 @@
     margin-bottom: 0;
     flex-direction: column;
     border-top-left-radius: 5px;
-    width: 20%;
-    height: 80vh;
+    width: 22%;
+    height: 66vh;
   }
 }
 .sideBarItem {
-  min-width: 180px;
+  min-width: 270px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,9 +88,8 @@
   }
   @media (min-width: 600px) {
     border: none;
-
     border-bottom: 1px solid #44968b;
-    padding: $sm $xl;
+    padding: $sm;
   }
 }
 .search {
@@ -217,6 +216,7 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
+  text-align: center;
   padding: $sm 0;
   border-bottom: 1px solid #dce6e5;
   width: 100%;
@@ -226,13 +226,28 @@
   p {
     min-width: 100px;
   }
+  flex-direction: column;
   @media (min-width: 600px) {
+    flex-direction: row;
+    gap: $md;
     p {
       min-width: 350px;
     }
     h4 {
       min-width: 150px;
     }
+  }
+}
+.ticketAmount {
+  border: 1px solid blue;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $sm;
+  gap: $sm;
+  p {
+    min-width: 100px;
   }
 }
 .ticketItem {

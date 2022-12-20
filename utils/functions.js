@@ -3,6 +3,36 @@ export const titleCase = (s) =>
     c ? c.toUpperCase() : " " + d.toUpperCase()
   );
 
+export const statusList = [
+  {
+    value: "registered",
+    label: "1. Registration received",
+  },
+  {
+    value: "email-sent",
+    label: "2. Registration confirmation",
+  },
+  {
+    value: "confirmed",
+    label: "3. Payment received",
+  },
+  {
+    value: "reminder",
+    label: "4. Payment Reminder",
+  },
+  {
+    value: "waitinglist",
+    label: "5. Waiting list",
+  },
+  {
+    value: "canceled",
+    label: "6. registration canceled",
+  },
+  {
+    value: "out",
+    label: "7. They are out",
+  },
+];
 export const levelsToShow = [
   {
     label: "Level One - Beginner/Intermediate",
